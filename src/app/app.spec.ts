@@ -1,10 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
+import { NoopSummarizerFactory, SummarizerFactory } from './summarizer-factory';
 
 describe('App', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [App],
+      providers: [{ provide: SummarizerFactory, useClass: NoopSummarizerFactory }],
     }).compileComponents();
   });
 
@@ -18,6 +20,6 @@ describe('App', () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, angular-built-in-ai');
+    expect(compiled.querySelector('h1')?.textContent).toContain('Built-in AI Summarizer');
   });
 });

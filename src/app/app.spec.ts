@@ -16,7 +16,7 @@ describe('App', () => {
     expect(fixture.componentInstance).toBeTruthy();
   });
 
-  it('should render a Summarizer navigation link', async () => {
+  it('should render navigation links to each API page', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
     const compiled = fixture.nativeElement as HTMLElement;
@@ -24,5 +24,6 @@ describe('App', () => {
       (a) => (a.textContent ?? '').trim(),
     );
     expect(links).toContain('Summarizer');
+    expect(links.some((label) => label.startsWith('Prompt'))).toBe(true);
   });
 });

@@ -47,8 +47,8 @@ ng test
 ## Running integration tests (Built-in AI E2E)
 
 Playwright integration tests under `e2e/` drive real Chrome stable with
-Built-in AI feature flags enabled and exercise each Built-in AI feature
-page end-to-end against the real on-device Gemini Nano model.
+Built-in AI feature flags enabled and exercise the Summarizer and Prompt
+pages end-to-end against the real on-device Gemini Nano model.
 
 ```bash
 pnpm test:e2e            # headless
@@ -58,9 +58,11 @@ pnpm test:e2e:ui         # Playwright UI mode
 
 Requirements:
 
-- Google Chrome **stable** (138+; tested on 149) at the default macOS path.
-  Tests use `channel: 'chrome'` — Playwright's bundled Chromium is NOT used
-  because it does not ship the Gemini Nano model.
+- Google Chrome **stable** at the default macOS path. The Summarizer
+  surface works on Chrome 138+; the Prompt page uses
+  `expectedOutputs.languages: ['ja']`, which requires Chrome 149+.
+  Tests use `channel: 'chrome'` — Playwright's bundled Chromium is NOT
+  used because it does not ship the Gemini Nano model.
 - Disk for the on-device model (~3 GB) under
   `.cache/playwright-chrome-ai-profile/`.
 

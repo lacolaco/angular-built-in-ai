@@ -3,7 +3,7 @@ import {
   createBuiltinAISummarizer,
   getBuiltinAISummarizerAvailability,
   isSummarizationSupported,
-} from './ai/summarizer';
+} from '../ai/summarizer';
 
 @Injectable({
   providedIn: 'root',

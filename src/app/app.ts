@@ -16,6 +16,13 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           >
             Summarizer
           </a>
+          <a
+            routerLink="/prompt"
+            routerLinkActive="bg-blue-600 text-white hover:bg-blue-700"
+            class="rounded border border-gray-300 bg-white px-3 py-1 font-medium text-gray-700 hover:bg-gray-100"
+          >
+            Prompt (画像)
+          </a>
         </nav>
       </div>
     </header>

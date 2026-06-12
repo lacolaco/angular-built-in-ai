@@ -44,15 +44,45 @@ To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use th
 ng test
 ```
 
-## Running end-to-end tests
+## Running integration tests (Built-in AI E2E)
 
-For end-to-end (e2e) testing, run:
+Playwright integration tests under `e2e/` drive real Chrome stable with
+Built-in AI feature flags enabled and exercise each Built-in AI feature
+page end-to-end against the real on-device Gemini Nano model.
 
 ```bash
-ng e2e
+pnpm test:e2e            # headless
+pnpm test:e2e:headed     # show the browser
+pnpm test:e2e:ui         # Playwright UI mode
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Requirements:
+
+- Google Chrome **stable** (138+; tested on 149) at the default macOS path.
+  Tests use `channel: 'chrome'` — Playwright's bundled Chromium is NOT used
+  because it does not ship the Gemini Nano model.
+- Disk for the on-device model (~3 GB) under
+  `.cache/playwright-chrome-ai-profile/`.
+
+The first run downloads the Optimization Guide On Device Model component
+(~2–3 min on a fast link). Subsequent runs reuse the cached profile.
+
+### Why we override Chrome launch flags
+
+Playwright/Puppeteer add several automation defaults that silently break
+Built-in AI provisioning:
+
+| Flag | Effect on Built-in AI |
+| --- | --- |
+| `--disable-background-networking` | Component Updater never downloads the model |
+| `--disable-component-extensions-with-background-pages` / `--disable-sync` / `--disable-default-apps` | Further starve the updater |
+| `--disable-features=...,OptimizationHints,...` (default list) | Optimization Guide service does not start (`Unable to create a text session because the service is not running`) |
+
+`e2e/ai-chrome-options.ts` removes these via `ignoreDefaultArgs` and adds
+`--enable-features=OptimizationGuideOnDeviceModel,...,PromptAPIForGeminiNano,
+SummarizationAPIForGeminiNano,...` plus
+`--component-updater=fast-update-check=1`. Edit that file if a future
+Playwright release changes its default disable list.
 
 ## Additional Resources
 

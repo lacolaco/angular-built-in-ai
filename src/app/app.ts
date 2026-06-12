@@ -76,7 +76,12 @@ import { summaryResource } from './summarized.resource';
                 <p class="text-sm text-red-600">{{ summary.error()?.message }}</p>
               }
               @case ('resolved') {
-                <p class="whitespace-pre-wrap text-sm text-gray-800">{{ summary.value() }}</p>
+                <p
+                  data-testid="summarizer-output"
+                  class="whitespace-pre-wrap text-sm text-gray-800"
+                >
+                  {{ summary.value() }}
+                </p>
               }
             }
           }

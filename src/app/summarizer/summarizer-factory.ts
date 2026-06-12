@@ -3,7 +3,7 @@ import {
   createBuiltinAISummarizer,
   getBuiltinAISummarizerAvailability,
   isSummarizationSupported,
-} from './ai/summarizer';
+} from '../ai/summarizer';
 
 @Injectable({
   providedIn: 'root',
@@ -29,15 +29,10 @@ export class BuiltinAISummarizerFactory extends SummarizerFactory {
 @Injectable()
 export class NoopSummarizerFactory extends SummarizerFactory {
   override async availability(): Promise<Availability> {
-    return 'available';
+    return 'unavailable';
   }
 
   override async create(): Promise<Summarizer> {
-    // Minimal stub for environments without Built-in AI API support / tests.
-    return {
-      summarize: async (input: string) => input,
-      summarizeStreaming: () => new ReadableStream<string>(),
-      destroy: () => {},
-    } as unknown as Summarizer;
+    throw new Error('Summarizer API is unavailable in this environment.');
   }
 }

@@ -39,7 +39,19 @@ export const summaryResource = (
     }
     initialized = true;
 
-    const summarizer = await factory.create(summarizerOptions);
+    let summarizer: Summarizer;
+    try {
+      summarizer = await factory.create(summarizerOptions);
+    } catch (e) {
+      // Allow the user-driven `initialize()` button to retry after a transient
+      // create() failure (download interrupted, quota, permission denied).
+      initialized = false;
+      state.set({
+        status: 'error',
+        error: e instanceof Error ? e : new Error(String(e)),
+      });
+      return;
+    }
     summarizerAvailability.set('available');
     destroyRef.onDestroy(() => {
       summarizer.destroy();
@@ -80,20 +92,25 @@ export const summaryResource = (
     );
   };
 
-  factory.availability(summarizerOptions).then((availability) => {
-    console.log('Summarizer availability:', availability);
-    if (availability === 'unavailable') {
-      // Unsupported environment.
+  factory
+    .availability(summarizerOptions)
+    .then((availability) => {
+      if (availability === 'unavailable') {
+        // Unsupported environment.
+        initialized = true;
+        state.set({ status: 'idle', value: '' });
+        return;
+      }
+      summarizerAvailability.set(availability);
+      if (availability === 'available' || availability === 'downloading') {
+        // no need explicit start.
+        initialize();
+      }
+    })
+    .catch((error) => {
       initialized = true;
-      state.set({ status: 'idle', value: '' });
-      return;
-    }
-    summarizerAvailability.set(availability);
-    if (availability === 'available' || availability === 'downloading') {
-      // no need explicit start.
-      initialize();
-    }
-  });
+      state.set({ status: 'error', error });
+    });
 
   return {
     ...resourceFromSnapshots(state),

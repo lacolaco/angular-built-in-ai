@@ -7,8 +7,8 @@ import { imageCaptionResource } from './image-caption.resource';
     <div class="mx-auto max-w-3xl space-y-6 p-6">
       <h1 class="text-2xl font-bold">Built-in AI Prompt (画像 → 日本語キャプション)</h1>
       <p class="text-sm text-gray-600">
-        画像を Prompt API に渡し、<code>responseConstraint</code> による JSON
-        Schema 出力で説明文・主な被写体・タグを得るサンプルです。Chrome 149
+        画像を Prompt API に渡し、<code>responseConstraint</code> による JSON Schema
+        出力で説明文・主な被写体・タグを得るサンプルです。Chrome 149
         以降の日本語入出力サポートを前提に
         <code>expectedOutputs.languages: ['ja']</code> を指定しています。
       </p>
@@ -86,7 +86,5 @@ import { imageCaptionResource } from './image-caption.resource';
 })
 export class PromptPage {
   private readonly imageRef = viewChild<ElementRef<HTMLImageElement>>('image');
-  protected readonly caption = imageCaptionResource(
-    () => this.imageRef()?.nativeElement ?? null,
-  );
+  protected readonly caption = imageCaptionResource(() => this.imageRef()?.nativeElement ?? null);
 }

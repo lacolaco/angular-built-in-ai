@@ -1,4 +1,4 @@
-export const isSummarizationSupported = 'Summarizer' in self;
+export const isSummarizationSupported = typeof Summarizer !== 'undefined';
 
 export async function getBuiltinAISummarizerAvailability(
   options?: SummarizerCreateCoreOptions,

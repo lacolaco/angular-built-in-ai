@@ -1,5 +1,6 @@
-import { Component, ElementRef, viewChild } from '@angular/core';
+import { Component, ElementRef, signal, viewChild } from '@angular/core';
 import { imageCaptionResource } from './image-caption.resource';
+import { SAMPLE_IMAGES, type SampleImage } from './sample-images';
 
 @Component({
   selector: 'app-prompt-page',
@@ -13,12 +14,29 @@ import { imageCaptionResource } from './image-caption.resource';
         <code>expectedOutputs.languages: ['ja']</code> を指定しています。
       </p>
 
-      <img
-        #image
-        src="samples/pexels-cat-35224529.jpg"
-        alt="サンプル画像"
-        class="mx-auto max-h-72 rounded border border-gray-200"
-      />
+      <div class="flex items-center justify-end gap-2">
+        <span class="text-xs text-gray-500">サンプル:</span>
+        @for (sample of samples; track sample.key) {
+          <button
+            type="button"
+            class="rounded border border-gray-400 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
+            (click)="selectSample(sample.key)"
+          >
+            {{ sample.key }}
+          </button>
+        }
+      </div>
+
+      @for (sample of samples; track sample.key) {
+        @if (sample.key === currentKey()) {
+          <img
+            #image
+            [src]="sample.src"
+            [alt]="sample.alt"
+            class="mx-auto max-h-72 rounded border border-gray-200"
+          />
+        }
+      }
 
       <section class="rounded border border-gray-300 bg-gray-50 p-4">
         @switch (caption.languageModelAvailability()) {
@@ -85,6 +103,13 @@ import { imageCaptionResource } from './image-caption.resource';
   `,
 })
 export class PromptPage {
+  protected readonly samples = SAMPLE_IMAGES;
+  protected readonly currentKey = signal<SampleImage['key']>(SAMPLE_IMAGES[0].key);
+
   private readonly imageRef = viewChild<ElementRef<HTMLImageElement>>('image');
   protected readonly caption = imageCaptionResource(() => this.imageRef()?.nativeElement ?? null);
+
+  protected selectSample(key: SampleImage['key']): void {
+    this.currentKey.set(key);
+  }
 }

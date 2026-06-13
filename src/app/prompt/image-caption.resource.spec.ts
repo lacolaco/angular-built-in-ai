@@ -1,11 +1,20 @@
 import { Injector, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { imageCaptionResource } from './image-caption.resource';
 import { LanguageModelFactory } from './language-model-factory';
 
-const makeImage = () =>
-  ({ decode: vi.fn(async () => undefined) }) as unknown as HTMLImageElement;
+beforeEach(() => {
+  class ImageMock {
+    src = '';
+    decode = vi.fn(async () => undefined);
+  }
+  vi.stubGlobal('Image', ImageMock);
+});
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 function setupFactory(prompt?: (input: unknown) => Promise<string>) {
   const promptFn = vi.fn(
@@ -31,9 +40,9 @@ function setupFactory(prompt?: (input: unknown) => Promise<string>) {
 }
 
 describe('imageCaptionResource', () => {
-  it('availability="available" のとき自動初期化され、image がセットされると prompt して resolved になる', async () => {
+  it('availability="available" のとき自動初期化され、src がセットされると prompt して resolved になる', async () => {
     const { factory, promptFn } = setupFactory();
-    const source = signal<HTMLImageElement | null>(null);
+    const source = signal<string | null>(null);
     const injector = TestBed.inject(Injector);
 
     const resource = imageCaptionResource(source, { injector });
@@ -43,7 +52,7 @@ describe('imageCaptionResource', () => {
     });
     expect(factory.create).toHaveBeenCalledTimes(1);
 
-    source.set(makeImage());
+    source.set('samples/a.jpg');
     TestBed.tick();
     await vi.waitFor(() => {
       expect(resource.status()).toBe('resolved');
@@ -58,7 +67,7 @@ describe('imageCaptionResource', () => {
 
   it('source が null のとき prompt を呼ばない', async () => {
     const { promptFn } = setupFactory();
-    const source = signal<HTMLImageElement | null>(null);
+    const source = signal<string | null>(null);
     const injector = TestBed.inject(Injector);
 
     const resource = imageCaptionResource(source, { injector });
@@ -70,11 +79,11 @@ describe('imageCaptionResource', () => {
     expect(promptFn).not.toHaveBeenCalled();
   });
 
-  it('image 変更ごとに prompt を再呼び出しする', async () => {
-    const { promptFn } = setupFactory(
-      async () => JSON.stringify({ caption: 'A', mainSubject: 'a', tags: [] }),
+  it('src 変更ごとに prompt を再呼び出しする', async () => {
+    const { promptFn } = setupFactory(async () =>
+      JSON.stringify({ caption: 'A', mainSubject: 'a', tags: [] }),
     );
-    const source = signal<HTMLImageElement | null>(null);
+    const source = signal<string | null>(null);
     const injector = TestBed.inject(Injector);
 
     const resource = imageCaptionResource(source, { injector });
@@ -82,11 +91,11 @@ describe('imageCaptionResource', () => {
       expect(resource.languageModelAvailability()).toBe('available');
     });
 
-    source.set(makeImage());
+    source.set('samples/a.jpg');
     TestBed.tick();
     await vi.waitFor(() => expect(resource.status()).toBe('resolved'));
 
-    source.set(makeImage());
+    source.set('samples/b.jpg');
     TestBed.tick();
     await vi.waitFor(() => expect(promptFn).toHaveBeenCalledTimes(2));
   });
@@ -96,7 +105,7 @@ describe('imageCaptionResource', () => {
     setupFactory(async () => {
       throw failure;
     });
-    const source = signal<HTMLImageElement | null>(null);
+    const source = signal<string | null>(null);
     const injector = TestBed.inject(Injector);
 
     const resource = imageCaptionResource(source, { injector });
@@ -104,7 +113,7 @@ describe('imageCaptionResource', () => {
       expect(resource.languageModelAvailability()).toBe('available');
     });
 
-    source.set(makeImage());
+    source.set('samples/a.jpg');
     TestBed.tick();
     await vi.waitFor(() => expect(resource.status()).toBe('error'));
     expect(resource.error()).toBe(failure);
@@ -112,7 +121,7 @@ describe('imageCaptionResource', () => {
 
   it('レスポンスが不正な JSON のとき error 状態になる', async () => {
     setupFactory(async () => 'not-json');
-    const source = signal<HTMLImageElement | null>(null);
+    const source = signal<string | null>(null);
     const injector = TestBed.inject(Injector);
 
     const resource = imageCaptionResource(source, { injector });
@@ -120,7 +129,7 @@ describe('imageCaptionResource', () => {
       expect(resource.languageModelAvailability()).toBe('available');
     });
 
-    source.set(makeImage());
+    source.set('samples/a.jpg');
     TestBed.tick();
     await vi.waitFor(() => expect(resource.status()).toBe('error'));
     expect(resource.error()).toBeInstanceOf(Error);
@@ -129,7 +138,7 @@ describe('imageCaptionResource', () => {
   it('availability="downloadable" のとき自動初期化されず、initialize() で開始する', async () => {
     const { factory } = setupFactory();
     factory.availability.mockResolvedValue('downloadable');
-    const source = signal<HTMLImageElement | null>(makeImage());
+    const source = signal<string | null>('samples/a.jpg');
     const injector = TestBed.inject(Injector);
 
     const resource = imageCaptionResource(source, { injector });
@@ -147,7 +156,7 @@ describe('imageCaptionResource', () => {
   it('availability="unavailable" のとき create も prompt も呼ばれない', async () => {
     const { factory, promptFn } = setupFactory();
     factory.availability.mockResolvedValue('unavailable');
-    const source = signal<HTMLImageElement | null>(makeImage());
+    const source = signal<string | null>('samples/a.jpg');
     const injector = TestBed.inject(Injector);
 
     const resource = imageCaptionResource(source, { injector });

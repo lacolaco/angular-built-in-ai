@@ -36,4 +36,26 @@ test.describe('Built-in AI Prompt', () => {
     const tagCount = await tags.locator('li').count();
     expect(tagCount).toBeGreaterThan(0);
   });
+
+  test('switching the sample image re-runs the prompt against the new image', async ({
+    aiPage,
+  }) => {
+    await aiPage.goto('/prompt');
+
+    const caption = aiPage.getByTestId('prompt-caption');
+    await expect(caption).toBeVisible({ timeout: 240_000 });
+
+    const firstCaption = (await caption.textContent())?.trim() ?? '';
+    expect(firstCaption.length).toBeGreaterThan(0);
+
+    await aiPage.getByRole('button', { name: 'B' }).click();
+
+    await expect
+      .poll(async () => (await caption.textContent())?.trim() ?? '', { timeout: 240_000 })
+      .not.toBe(firstCaption);
+
+    const secondCaption = (await caption.textContent())?.trim() ?? '';
+    expect(secondCaption.length).toBeGreaterThan(20);
+    expect(secondCaption).toMatch(/[぀-ヿ一-鿿]/);
+  });
 });

@@ -30,7 +30,7 @@ import { SAMPLE_IMAGES, type SampleImage } from './sample-images';
       <img
         [src]="currentSample().src"
         [alt]="currentSample().alt"
-        class="mx-auto max-h-72 rounded border border-gray-200"
+        class="mx-auto aspect-video w-full max-w-md rounded border border-gray-200 object-cover"
       />
 
       <section class="rounded border border-gray-300 bg-gray-50 p-4">

@@ -1,4 +1,4 @@
-export const isLanguageModelSupported = 'LanguageModel' in self;
+export const isLanguageModelSupported = typeof LanguageModel !== 'undefined';
 
 export async function getBuiltinAILanguageModelAvailability(
   options?: LanguageModelCreateCoreOptions,

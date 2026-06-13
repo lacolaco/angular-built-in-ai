@@ -1,4 +1,4 @@
-import { Component, ElementRef, signal, viewChild } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { imageCaptionResource } from './image-caption.resource';
 import { SAMPLE_IMAGES, type SampleImage } from './sample-images';
 
@@ -20,23 +20,18 @@ import { SAMPLE_IMAGES, type SampleImage } from './sample-images';
           <button
             type="button"
             class="rounded border border-gray-400 bg-white px-3 py-1 text-xs font-medium text-gray-700 hover:bg-gray-100"
-            (click)="selectSample(sample.key)"
+            (click)="currentSample.set(sample)"
           >
             {{ sample.key }}
           </button>
         }
       </div>
 
-      @for (sample of samples; track sample.key) {
-        @if (sample.key === currentKey()) {
-          <img
-            #image
-            [src]="sample.src"
-            [alt]="sample.alt"
-            class="mx-auto max-h-72 rounded border border-gray-200"
-          />
-        }
-      }
+      <img
+        [src]="currentSample().src"
+        [alt]="currentSample().alt"
+        class="mx-auto max-h-72 rounded border border-gray-200"
+      />
 
       <section class="rounded border border-gray-300 bg-gray-50 p-4">
         @switch (caption.languageModelAvailability()) {
@@ -104,12 +99,6 @@ import { SAMPLE_IMAGES, type SampleImage } from './sample-images';
 })
 export class PromptPage {
   protected readonly samples = SAMPLE_IMAGES;
-  protected readonly currentKey = signal<SampleImage['key']>(SAMPLE_IMAGES[0].key);
-
-  private readonly imageRef = viewChild<ElementRef<HTMLImageElement>>('image');
-  protected readonly caption = imageCaptionResource(() => this.imageRef()?.nativeElement ?? null);
-
-  protected selectSample(key: SampleImage['key']): void {
-    this.currentKey.set(key);
-  }
+  protected readonly currentSample = signal<SampleImage>(SAMPLE_IMAGES[0]);
+  protected readonly caption = imageCaptionResource(() => this.currentSample().src);
 }

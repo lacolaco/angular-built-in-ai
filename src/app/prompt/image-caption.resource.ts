@@ -73,7 +73,7 @@ const LANGUAGE_MODEL_OPTIONS: LanguageModelCreateOptions = {
 };
 
 export const imageCaptionResource = (
-  source: () => HTMLImageElement | null,
+  source: () => string | null,
   options: { injector?: Injector } = {},
 ): ImageCaptionResource => {
   const injector = options.injector ?? inject(Injector);
@@ -105,26 +105,29 @@ export const imageCaptionResource = (
     languageModelAvailability.set('available');
     destroyRef.onDestroy(() => languageModel.destroy());
 
-    let activeImage: HTMLImageElement | null = null;
+    let activeToken = 0;
 
     effect(
       (onCleanUp) => {
-        const image = source();
-        if (!image) {
+        const src = source();
+        if (!src) {
           state.set({ status: 'idle', value: null });
           return;
         }
 
+        const myToken = ++activeToken;
         const abortController = new AbortController();
         onCleanUp(() => abortController.abort());
-        activeImage = image;
+
+        const image = new Image();
+        image.src = src;
 
         state.set({ status: 'loading', value: null });
 
         image
           .decode()
           .then(() => {
-            if (activeImage !== image) return null;
+            if (myToken !== activeToken) return null;
             return languageModel.prompt(
               [
                 {
@@ -139,11 +142,11 @@ export const imageCaptionResource = (
             );
           })
           .then((raw) => {
-            if (activeImage !== image || raw === null) return;
+            if (myToken !== activeToken || raw === null) return;
             state.set({ status: 'resolved', value: parseImageCaption(raw) });
           })
           .catch((error) => {
-            if (activeImage !== image) return;
+            if (myToken !== activeToken) return;
             state.set({ status: 'error', error });
           });
       },

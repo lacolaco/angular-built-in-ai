@@ -34,6 +34,13 @@ export default async function globalSetup(config: FullConfig) {
     // itself is single-pass either way — but kicking the two evaluations off
     // together lets the second probe avoid an extra cold CDP round-trip after
     // the first completes.
+    //
+    // Translator is NOT probed here. Its `create()` requires a user-activation
+    // gesture when availability is `'downloadable'` / `'downloading'`, which
+    // `page.evaluate` cannot supply. Driving the translator page through the
+    // browser requires a real `locator.click()` to initialise each language
+    // pair, so model provisioning happens lazily under user interaction rather
+    // than at global setup.
     const [summarizer, lm] = await Promise.all([
       page.evaluate(async () => {
         if (!('Summarizer' in self)) {

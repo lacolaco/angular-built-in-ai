@@ -10,6 +10,7 @@ Angular で [Chrome Built-in AI APIs](https://developer.chrome.com/docs/ai/built
 | --- | --- | --- | --- |
 | [`/summarizer`](https://lacolaco.github.io/angular-built-in-ai/summarizer/) | [Summarizer API](https://developer.chrome.com/docs/ai/summarizer-api) | 138+ | 入力テキストを日本語要約。複数のサンプルテキストをワンクリックで切り替え。 |
 | [`/prompt`](https://lacolaco.github.io/angular-built-in-ai/prompt/) | [Prompt API](https://developer.chrome.com/docs/ai/prompt-api) (multimodal) | 149+ | 画像を `responseConstraint` (JSON Schema) と組み合わせ、`{ caption, mainSubject, tags }` を生成。3 枚のサンプル画像を切り替え。 |
+| [`/translator`](https://lacolaco.github.io/angular-built-in-ai/translator/) | [Translator API](https://developer.chrome.com/docs/ai/translator-api) | 138+ | 異なる言語 (日本語・英語・中国語 (簡体)・スペイン語) で投稿された短文を、ユーザーが選んだ表示言語に翻訳する Reddit 風 UI。`Translator` のリアクティブな再生成で言語切替を表現。 |
 
 ## Architecture
 

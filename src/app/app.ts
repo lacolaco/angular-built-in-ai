@@ -25,6 +25,14 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           >
             Prompt (画像)
           </a>
+          <a
+            routerLink="/translator"
+            routerLinkActive
+            ariaCurrentWhenActive="page"
+            class="nav-link"
+          >
+            Translator
+          </a>
         </nav>
       </div>
     </header>

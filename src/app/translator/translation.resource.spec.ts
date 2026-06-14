@@ -152,6 +152,42 @@ describe('translationResource', () => {
     expect(factory.create).toHaveBeenCalledTimes(1);
   });
 
+  it('sourceLanguage === targetLanguage のとき availability probe を呼ばずに unavailable で idle になる', async () => {
+    const { factory } = setupFactory();
+    const text = signal('hello');
+    const opts = signal<TranslatorCreateOptions>({ sourceLanguage: 'ja', targetLanguage: 'ja' });
+    const injector = TestBed.inject(Injector);
+
+    const resource = translationResource(text, opts, { injector });
+
+    await new Promise((r) => setTimeout(r, 0));
+    expect(resource.translatorAvailability()).toBe('unavailable');
+    expect(resource.status()).toBe('idle');
+    expect(factory.availability).not.toHaveBeenCalled();
+    expect(factory.create).not.toHaveBeenCalled();
+  });
+
+  it('create() が downloadable 経由で失敗したら error 状態にしつつ availability を downloadable に戻す', async () => {
+    const failure = new Error('create failed');
+    const { factory } = setupFactory();
+    factory.availability.mockResolvedValue('downloadable');
+    factory.create.mockRejectedValue(failure);
+    const text = signal('hello');
+    const opts = signal(enToJa);
+    const injector = TestBed.inject(Injector);
+
+    const resource = translationResource(text, opts, { injector });
+    await vi.waitFor(() => {
+      expect(resource.translatorAvailability()).toBe('downloadable');
+    });
+
+    resource.initialize();
+    await vi.waitFor(() => expect(resource.status()).toBe('error'));
+    expect(resource.error()).toBe(failure);
+    // The retry affordance must come back so the user can click again.
+    expect(resource.translatorAvailability()).toBe('downloadable');
+  });
+
   it('availability="unavailable" のとき create も translate も呼ばれない', async () => {
     const { factory, translateFn } = setupFactory();
     factory.availability.mockResolvedValue('unavailable');

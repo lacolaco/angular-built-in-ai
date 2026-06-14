@@ -71,16 +71,23 @@ export const translationResource = (
     initializedKey = key;
 
     teardown();
-    // Surface the "create is in flight" state immediately so the page can
-    // swap the "Initialize" button for a "Downloading…" indicator and the
-    // user can't issue a duplicate user-gesture create.
-    translatorAvailability.set('downloading');
+    // Only flip to `'downloading'` if the user is starting from a not-yet-ready
+    // state — otherwise a cached/`'available'` pair would briefly flash as
+    // "Downloading…" on every load or pair toggle. When availability was
+    // already `'downloading'`, leave it alone; the auto-init path is just
+    // continuing the in-flight download.
+    if (untracked(translatorAvailability) === 'downloadable') {
+      translatorAvailability.set('downloading');
+    }
 
     let t: Translator;
     try {
       t = await factory.create(opts);
     } catch (e) {
       initializedKey = null;
+      // Restore availability so the page surfaces a retryable affordance
+      // ("Initialize" button) instead of getting stuck on "Downloading…".
+      translatorAvailability.set('downloadable');
       state.set({
         status: 'error',
         error: e instanceof Error ? e : new Error(String(e)),
@@ -112,6 +119,19 @@ export const translationResource = (
       if (previousKey !== null && previousKey !== nextKey) {
         teardown();
         initializedKey = null;
+        // Clear any prior resolved value so the new pair never renders the
+        // old translation under its new header while create() is in flight.
+        state.set({ status: 'idle', value: '' });
+      }
+
+      // Same-language pairs (e.g. ja->ja) have nothing to translate. Avoid
+      // poking the platform and surface "unavailable" so the page can fall
+      // back to rendering the original text untouched.
+      if (opts.sourceLanguage === opts.targetLanguage) {
+        translatorAvailability.set('unavailable');
+        initializedKey = nextKey;
+        state.set({ status: 'idle', value: '' });
+        return;
       }
 
       factory
@@ -133,6 +153,9 @@ export const translationResource = (
         .catch((error) => {
           if (optsKey(untracked(translatorOptions)) !== nextKey) return;
           initializedKey = nextKey;
+          // The probe itself failed; we no longer know what state the API
+          // is in. Mark as unavailable to keep the UI internally consistent.
+          translatorAvailability.set('unavailable');
           state.set({ status: 'error', error });
         });
     },

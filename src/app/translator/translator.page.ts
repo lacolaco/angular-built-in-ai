@@ -1,5 +1,5 @@
 import { Component, computed, signal } from '@angular/core';
-import { LANGUAGES, SAMPLE_POSTS, type Lang } from './sample-text';
+import { LANG_CODES, LANG_LABEL, SAMPLE_POSTS, type Lang } from './sample-text';
 import { translationResource } from './translation.resource';
 
 @Component({
@@ -19,20 +19,14 @@ import { translationResource } from './translation.resource';
         aria-label="表示言語"
       >
         <span class="text-sm text-gray-700">表示言語:</span>
-        @for (lang of languages; track lang.code) {
+        @for (code of langCodes; track code) {
           <button
             type="button"
-            class="rounded border px-3 py-1 text-sm"
-            [class.border-blue-600]="displayLang() === lang.code"
-            [class.bg-blue-600]="displayLang() === lang.code"
-            [class.text-white]="displayLang() === lang.code"
-            [class.border-gray-400]="displayLang() !== lang.code"
-            [class.bg-white]="displayLang() !== lang.code"
-            [class.text-gray-700]="displayLang() !== lang.code"
-            [attr.aria-pressed]="displayLang() === lang.code"
-            (click)="displayLang.set(lang.code)"
+            class="rounded border border-gray-400 bg-white px-3 py-1 text-sm text-gray-700 aria-pressed:border-blue-600 aria-pressed:bg-blue-600 aria-pressed:text-white"
+            [attr.aria-pressed]="displayLang() === code"
+            (click)="displayLang.set(code)"
           >
-            {{ lang.label }}
+            {{ labels[code] }}
           </button>
         }
       </div>
@@ -45,7 +39,7 @@ import { translationResource } from './translation.resource';
           >
             <header class="flex items-center justify-between text-xs text-gray-500">
               <span>posted by <strong class="text-gray-700">{{ post.meta.author }}</strong></span>
-              <span>原文: {{ labelFor(post.meta.source) }}</span>
+              <span>原文: {{ labels[post.meta.source] }}</span>
             </header>
 
             @if (displayLang() === post.meta.source) {
@@ -58,12 +52,15 @@ import { translationResource } from './translation.resource';
                 }
                 @case ('downloadable') {
                   <p class="whitespace-pre-wrap text-sm text-gray-500">{{ post.meta.text }}</p>
+                  @if (post.resource.error(); as err) {
+                    <p class="text-xs text-red-600">初期化に失敗しました: {{ err.message }}</p>
+                  }
                   <button
                     type="button"
                     class="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700"
                     (click)="post.resource.initialize()"
                   >
-                    {{ labelFor(post.meta.source) }} → {{ labelFor(displayLang()) }} を翻訳
+                    {{ labels[post.meta.source] }} → {{ labels[displayLang()] }} を翻訳
                   </button>
                 }
                 @case ('downloading') {
@@ -92,9 +89,6 @@ import { translationResource } from './translation.resource';
                         <p class="mt-1 whitespace-pre-wrap">{{ post.meta.text }}</p>
                       </details>
                     }
-                    @default {
-                      <p class="whitespace-pre-wrap text-sm text-gray-500">{{ post.meta.text }}</p>
-                    }
                   }
                 }
               }
@@ -106,7 +100,8 @@ import { translationResource } from './translation.resource';
   `,
 })
 export class TranslatorPage {
-  protected readonly languages = LANGUAGES;
+  protected readonly langCodes = LANG_CODES;
+  protected readonly labels = LANG_LABEL;
   protected readonly displayLang = signal<Lang>('ja');
 
   protected readonly posts = SAMPLE_POSTS.map((meta) => ({
@@ -116,8 +111,4 @@ export class TranslatorPage {
       () => ({ sourceLanguage: meta.source, targetLanguage: this.displayLang() }),
     ),
   }));
-
-  protected labelFor(code: Lang): string {
-    return this.languages.find((l) => l.code === code)?.label ?? code;
-  }
 }

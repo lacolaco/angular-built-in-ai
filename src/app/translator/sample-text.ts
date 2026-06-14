@@ -1,16 +1,13 @@
 export type Lang = 'ja' | 'en' | 'zh-Hans' | 'es';
 
-export interface LangLabel {
-  readonly code: Lang;
-  readonly label: string;
-}
+export const LANG_LABEL: Record<Lang, string> = {
+  ja: '日本語',
+  en: 'English',
+  'zh-Hans': '中文 (简体)',
+  es: 'Español',
+};
 
-export const LANGUAGES: readonly LangLabel[] = [
-  { code: 'ja', label: '日本語' },
-  { code: 'en', label: 'English' },
-  { code: 'zh-Hans', label: '中文 (简体)' },
-  { code: 'es', label: 'Español' },
-];
+export const LANG_CODES: readonly Lang[] = ['ja', 'en', 'zh-Hans', 'es'];
 
 export interface SamplePost {
   readonly id: string;

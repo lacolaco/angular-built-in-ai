@@ -1,5 +1,11 @@
 import { Component, computed, signal } from '@angular/core';
-import { LANG_CODES, LANG_LABEL, SAMPLE_POSTS, type Lang } from './sample-text';
+import {
+  LANG_LABEL,
+  SAMPLE_POSTS,
+  VIEW_MODES,
+  type Lang,
+  type ViewMode,
+} from './sample-text';
 import { translationResource } from './translation.resource';
 
 @Component({
@@ -8,25 +14,25 @@ import { translationResource } from './translation.resource';
     <div class="mx-auto max-w-3xl space-y-6 p-6">
       <h1 class="text-2xl font-bold">Built-in AI Translator</h1>
       <p class="text-sm text-gray-600">
-        異なる言語で投稿された短文を、Built-in AI の Translator API
-        でユーザーが選んだ表示言語に翻訳します。原文と表示言語が同じ投稿はそのまま、
-        違う投稿は初回のみモデルのダウンロードを挟んで翻訳結果が表示されます。
+        4 つの言語 (日本語・English・中文 (简体)・Español) で投稿された短文を、Built-in AI の
+        Translator API でユーザーが選んだ表示モードに統一表示します。原文モードでは翻訳を行わず、
+        日本語表示 / 英語表示 では原文の言語が表示先と異なる投稿だけ翻訳が走ります。
       </p>
 
       <div
         class="flex flex-wrap items-center gap-2"
         role="radiogroup"
-        aria-label="表示言語"
+        aria-label="表示モード"
       >
-        <span class="text-sm text-gray-700">表示言語:</span>
-        @for (code of langCodes; track code) {
+        <span class="text-sm text-gray-700">表示モード:</span>
+        @for (mode of viewModes; track mode.value) {
           <button
             type="button"
             class="rounded border border-gray-400 bg-white px-3 py-1 text-sm text-gray-700 aria-pressed:border-blue-600 aria-pressed:bg-blue-600 aria-pressed:text-white"
-            [attr.aria-pressed]="displayLang() === code"
-            (click)="displayLang.set(code)"
+            [attr.aria-pressed]="viewMode() === mode.value"
+            (click)="viewMode.set(mode.value)"
           >
-            {{ labels[code] }}
+            {{ mode.label }}
           </button>
         }
       </div>
@@ -42,7 +48,7 @@ import { translationResource } from './translation.resource';
               <span>原文: {{ labels[post.meta.source] }}</span>
             </header>
 
-            @if (displayLang() === post.meta.source) {
+            @if (showsOriginal(post.meta.source)) {
               <p class="whitespace-pre-wrap text-sm text-gray-800">{{ post.meta.text }}</p>
             } @else {
               @switch (post.resource.translatorAvailability()) {
@@ -60,7 +66,7 @@ import { translationResource } from './translation.resource';
                     class="rounded bg-blue-600 px-3 py-1 text-xs font-medium text-white hover:bg-blue-700"
                     (click)="post.resource.initialize()"
                   >
-                    {{ labels[post.meta.source] }} → {{ labels[displayLang()] }} を翻訳
+                    {{ labels[post.meta.source] }} → {{ labels[targetLangFor(viewMode())] }} を翻訳
                   </button>
                 }
                 @case ('downloading') {
@@ -100,15 +106,36 @@ import { translationResource } from './translation.resource';
   `,
 })
 export class TranslatorPage {
-  protected readonly langCodes = LANG_CODES;
+  protected readonly viewModes = VIEW_MODES;
   protected readonly labels = LANG_LABEL;
-  protected readonly displayLang = signal<Lang>('ja');
+  protected readonly viewMode = signal<ViewMode>('original');
 
   protected readonly posts = SAMPLE_POSTS.map((meta) => ({
     meta,
     resource: translationResource(
-      computed(() => (this.displayLang() === meta.source ? '' : meta.text)),
-      () => ({ sourceLanguage: meta.source, targetLanguage: this.displayLang() }),
+      computed(() => (this.showsOriginal(meta.source) ? '' : meta.text)),
+      () => ({
+        sourceLanguage: meta.source,
+        targetLanguage: this.targetLangFor(this.viewMode(), meta.source),
+      }),
     ),
   }));
+
+  /**
+   * `viewMode` の選択により、この投稿が原文をそのまま表示するべきかを判定する。
+   * 原文表示モード、または原文の言語と表示モードが一致する場合に true。
+   */
+  protected showsOriginal(source: Lang): boolean {
+    const mode = this.viewMode();
+    return mode === 'original' || mode === source;
+  }
+
+  /**
+   * Translator に渡す `targetLanguage` を決める。原文モードでは翻訳しないので
+   * 同言語ペアを返し、resource 側で no-op 化させる。`fallback` は呼び出し時の
+   * `meta.source` をそのまま受け取る (computed 経由でしか呼ばれないので reactive)。
+   */
+  protected targetLangFor(mode: ViewMode, fallback: Lang = 'ja'): Lang {
+    return mode === 'original' ? fallback : mode;
+  }
 }

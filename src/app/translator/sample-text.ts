@@ -7,7 +7,13 @@ export const LANG_LABEL: Record<Lang, string> = {
   es: 'Español',
 };
 
-export const LANG_CODES: readonly Lang[] = ['ja', 'en', 'zh-Hans', 'es'];
+export type ViewMode = 'original' | 'ja' | 'en';
+
+export const VIEW_MODES: ReadonlyArray<{ value: ViewMode; label: string }> = [
+  { value: 'original', label: '原文表示' },
+  { value: 'ja', label: '日本語表示' },
+  { value: 'en', label: '英語表示' },
+];
 
 export interface SamplePost {
   readonly id: string;

@@ -4,13 +4,19 @@ Angular で [Chrome Built-in AI APIs](https://developer.chrome.com/docs/ai/built
 
 **Live demo:** https://lacolaco.github.io/angular-built-in-ai/
 
-## Features
+## Coverage
 
-| Page | Built-in AI API | Min. Chrome | Description |
-| --- | --- | --- | --- |
-| [`/summarizer`](https://lacolaco.github.io/angular-built-in-ai/summarizer/) | [Summarizer API](https://developer.chrome.com/docs/ai/summarizer-api) | 138+ | 入力テキストを日本語要約。複数のサンプルテキストをワンクリックで切り替え。 |
-| [`/prompt`](https://lacolaco.github.io/angular-built-in-ai/prompt/) | [Prompt API](https://developer.chrome.com/docs/ai/prompt-api) (multimodal) | 149+ | 画像を `responseConstraint` (JSON Schema) と組み合わせ、`{ caption, mainSubject, tags }` を生成。3 枚のサンプル画像を切り替え。 |
-| [`/translator`](https://lacolaco.github.io/angular-built-in-ai/translator/) | [Translator API](https://developer.chrome.com/docs/ai/translator-api) | 138+ | 4 つの言語 (日本語・English・中文 (简体)・Español) で書かれた投稿を、原文表示 / 日本語表示 / 英語表示の 3 モードで切替表示する Reddit 風 UI。表示モードを切替えると原文と異なる言語の投稿だけ `Translator` が走る。 |
+[Chrome Built-in AI APIs](https://developer.chrome.com/docs/ai/built-in) のうち、本プレイグラウンドが扱っているものを ✅、未着手のものを ⏳ で示します。
+
+| Built-in AI API | Coverage | Page | Min. Chrome | Description |
+| --- | --- | --- | --- | --- |
+| [Summarizer API](https://developer.chrome.com/docs/ai/summarizer-api) | ✅ | [`/summarizer`](https://lacolaco.github.io/angular-built-in-ai/summarizer/) | 138+ | 入力テキストを日本語要約。複数のサンプルテキストをワンクリックで切り替え。 |
+| [Prompt API](https://developer.chrome.com/docs/ai/prompt-api) (multimodal) | ✅ | [`/prompt`](https://lacolaco.github.io/angular-built-in-ai/prompt/) | 149+ | 画像を `responseConstraint` (JSON Schema) と組み合わせ、`{ caption, mainSubject, tags }` を生成。3 枚のサンプル画像を切り替え。 |
+| [Translator API](https://developer.chrome.com/docs/ai/translator-api) | ✅ | [`/translator`](https://lacolaco.github.io/angular-built-in-ai/translator/) | 138+ | 4 つの言語 (日本語・English・中文 (简体)・Español) で書かれた投稿を、原文表示 / 日本語表示 / 英語表示の 3 モードで切替表示する Reddit 風 UI。表示モードを切替えると原文と異なる言語の投稿だけ `Translator` が走る。 |
+| [Language Detector API](https://developer.chrome.com/docs/ai/language-detection) | ⏳ | — | — | テキストの言語を判定する API。未着手。 |
+| [Writer API](https://developer.chrome.com/docs/ai/writer-api) | ⏳ | — | — | 指定したタスクに沿って新規テキストを生成する API。未着手。 |
+| [Rewriter API](https://developer.chrome.com/docs/ai/rewriter-api) | ⏳ | — | — | 既存テキストの長さやトーンを変えて書き換える API。未着手。 |
+| [Proofreader API](https://developer.chrome.com/docs/ai/proofreader-api) | ⏳ | — | — | 文章の読みやすさや文法を校正する API。未着手。 |
 
 ## Architecture
 

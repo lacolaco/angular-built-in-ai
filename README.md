@@ -11,10 +11,10 @@ Angular で [Chrome Built-in AI APIs](https://developer.chrome.com/docs/ai/built
 | [Summarizer API](https://developer.chrome.com/docs/ai/summarizer-api) | https://lacolaco.github.io/angular-built-in-ai/summarizer/ |
 | [Prompt API](https://developer.chrome.com/docs/ai/prompt-api) | https://lacolaco.github.io/angular-built-in-ai/prompt/ |
 | [Translator API](https://developer.chrome.com/docs/ai/translator-api) | https://lacolaco.github.io/angular-built-in-ai/translator/ |
-| [Language Detector API](https://developer.chrome.com/docs/ai/language-detection) | — |
-| [Writer API](https://developer.chrome.com/docs/ai/writer-api) | — |
-| [Rewriter API](https://developer.chrome.com/docs/ai/rewriter-api) | — |
-| [Proofreader API](https://developer.chrome.com/docs/ai/proofreader-api) | — |
+| [Language Detector API](https://developer.chrome.com/docs/ai/language-detection) | Not yet |
+| [Writer API](https://developer.chrome.com/docs/ai/writer-api) | Not yet |
+| [Rewriter API](https://developer.chrome.com/docs/ai/rewriter-api) | Not yet |
+| [Proofreader API](https://developer.chrome.com/docs/ai/proofreader-api) | Not yet |
 
 ## Architecture
 

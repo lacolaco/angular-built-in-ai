@@ -41,7 +41,7 @@ export default async function globalSetup(config: FullConfig) {
     // browser requires a real `locator.click()` to initialise each language
     // pair, so model provisioning happens lazily under user interaction rather
     // than at global setup.
-    const [summarizer, lm] = await Promise.all([
+    const [summarizer, lm, detector] = await Promise.all([
       page.evaluate(async () => {
         if (!('Summarizer' in self)) {
           return { ok: false, reason: 'Summarizer API not present' };
@@ -76,6 +76,24 @@ export default async function globalSetup(config: FullConfig) {
         m.destroy();
         return { ok: true, cached: false };
       }),
+      // Language Detector rides its own small detection model (NOT the
+      // Optimization Guide / Gemini Nano backend used by Summarizer +
+      // LanguageModel). Probe it separately so the page test can assume
+      // availability === 'available'. `create()` for the detector does not
+      // require user activation, so it can run inside page.evaluate.
+      page.evaluate(async () => {
+        if (!('LanguageDetector' in self)) {
+          return { ok: false, reason: 'LanguageDetector API not present' };
+        }
+        const a = await LanguageDetector.availability();
+        if (a === 'unavailable') {
+          return { ok: false, reason: 'LanguageDetector permanently unavailable' };
+        }
+        if (a === 'available') return { ok: true, cached: true };
+        const d = await LanguageDetector.create();
+        d.destroy();
+        return { ok: true, cached: false };
+      }),
     ]);
 
     if (!summarizer.ok) {
@@ -86,6 +104,10 @@ export default async function globalSetup(config: FullConfig) {
       throw new Error(`Built-in AI LanguageModel cannot be provisioned: ${lm.reason}`);
     }
     console.log(`[global-setup] LanguageModel ready (cached=${lm.cached})`);
+    if (!detector.ok) {
+      throw new Error(`Built-in AI LanguageDetector cannot be provisioned: ${detector.reason}`);
+    }
+    console.log(`[global-setup] LanguageDetector ready (cached=${detector.cached})`);
   } finally {
     await context.close();
   }

@@ -17,4 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./translator/translator.page').then((m) => m.TranslatorPage),
     title: 'Built-in AI Translator',
   },
+  {
+    path: 'language-detector',
+    loadComponent: () =>
+      import('./language-detector/language-detector.page').then((m) => m.LanguageDetectorPage),
+    title: 'Built-in AI Language Detector',
+  },
 ];

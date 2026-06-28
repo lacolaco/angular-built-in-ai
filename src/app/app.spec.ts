@@ -25,5 +25,7 @@ describe('App', () => {
     );
     expect(links).toContain('Summarizer');
     expect(links.some((label) => label.startsWith('Prompt'))).toBe(true);
+    expect(links).toContain('Translator');
+    expect(links).toContain('Language Detector');
   });
 });

@@ -33,6 +33,14 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
           >
             Translator
           </a>
+          <a
+            routerLink="/language-detector"
+            routerLinkActive
+            ariaCurrentWhenActive="page"
+            class="nav-link"
+          >
+            Language Detector
+          </a>
         </nav>
       </div>
     </header>
